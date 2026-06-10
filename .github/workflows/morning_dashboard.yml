@@ -1,0 +1,35 @@
+EMAIL_TO       = '{os.environ['EMAIL_TO']}'
+EMAIL_SUBJECT  = '🌅 Morning Market Update'
+ 
+import os, tempfile
+OUTPUT_DIR = tempfile.gettempdir()
+PDF_FILE   = os.path.join(OUTPUT_DIR, 'morning_market_dashboard.pdf')
+"""
+          for cell in nb['cells']:
+              if cell.get('id') == 'config01':
+                  cell['source'] = [config_code]
+                  break
+ 
+          with open(nb_path, 'w') as f:
+              json.dump(nb, f)
+ 
+          print("✅ Secrets injected.")
+          PYEOF
+ 
+      - name: Run notebook
+        run: |
+          papermill morning_market_dashboard_email.ipynb output.ipynb \
+            --kernel python3 \
+            --log-output
+ 
+      - name: Check output
+        run: |
+          cat output.ipynb | python3 -c "
+          import json, sys
+          nb = json.load(sys.stdin)
+          for cell in nb['cells']:
+              for out in cell.get('outputs', []):
+                  if out.get('name') == 'stdout':
+                      print(''.join(out['text']))
+          "
+ 
