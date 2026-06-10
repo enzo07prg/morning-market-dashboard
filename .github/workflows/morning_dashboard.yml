@@ -1,35 +1,36 @@
-EMAIL_TO       = '{os.environ['EMAIL_TO']}'
-EMAIL_SUBJECT  = '🌅 Morning Market Update'
- 
-import os, tempfile
-OUTPUT_DIR = tempfile.gettempdir()
-PDF_FILE   = os.path.join(OUTPUT_DIR, 'morning_market_dashboard.pdf')
-"""
-          for cell in nb['cells']:
-              if cell.get('id') == 'config01':
-                  cell['source'] = [config_code]
-                  break
- 
-          with open(nb_path, 'w') as f:
-              json.dump(nb, f)
- 
-          print("✅ Secrets injected.")
-          PYEOF
- 
-      - name: Run notebook
-        run: |
-          papermill morning_market_dashboard_email.ipynb output.ipynb \
-            --kernel python3 \
-            --log-output
- 
-      - name: Check output
-        run: |
-          cat output.ipynb | python3 -c "
-          import json, sys
-          nb = json.load(sys.stdin)
-          for cell in nb['cells']:
-              for out in cell.get('outputs', []):
-                  if out.get('name') == 'stdout':
-                      print(''.join(out['text']))
-          "
- 
+import json
+import os
+import tempfile
+
+nb_path = 'morning_market_dashboard_email.ipynb'
+
+with open(nb_path, 'r') as f:
+    nb = json.load(f)
+
+fred        = os.environ.get('FRED_API_KEY', '')
+sender      = os.environ.get('EMAIL_SENDER', '')
+password    = os.environ.get('EMAIL_PASSWORD', '')
+to          = os.environ.get('EMAIL_TO', '')
+output_dir  = tempfile.gettempdir()
+pdf_file    = output_dir + '/morning_market_dashboard.pdf'
+
+new_config = [
+    "import os, tempfile\n",
+    "FRED_API_KEY   = '" + fred     + "'\n",
+    "EMAIL_SENDER   = '" + sender   + "'\n",
+    "EMAIL_PASSWORD = '" + password + "'\n",
+    "EMAIL_TO       = '" + to       + "'\n",
+    "EMAIL_SUBJECT  = 'Morning Market Update'\n",
+    "OUTPUT_DIR     = tempfile.gettempdir()\n",
+    "PDF_FILE       = os.path.join(OUTPUT_DIR, 'morning_market_dashboard.pdf')\n",
+]
+
+for cell in nb['cells']:
+    if cell.get('id') == 'config01':
+        cell['source'] = new_config
+        break
+
+with open(nb_path, 'w') as f:
+    json.dump(nb, f)
+
+print("Secrets injected successfully.")
